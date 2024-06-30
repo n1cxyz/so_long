@@ -1,0 +1,27 @@
+/* XPM */
+static char *Skeleton[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 5 1 ",
+"  c #3D253B",
+". c #A17877",
+"X c #CCA8A3",
+"o c #EBD0C5",
+"O c white",
+/* pixels */
+"OOOOOOOOOOOOOOOO",
+"OOOOO      OOOOO",
+"OOOO XooooX OOOO",
+"OOO XooooooX OOO",
+"OOO XooooooX OOO",
+"OOO X  oo  X OOO",
+"OOO X  oo  X OOO",
+"OOOO XooooX OOOO",
+"OOO .X.XX.X. OOO",
+"OOO X.o..o.X OOO",
+"OO oXXooooXXo OO",
+"O XX oXXXXo XX O",
+"OO   oooooo   OO",
+"OOO Xo.  .oX OOO",
+"OOO oo OO oo OOO",
+"OOOOOOOOOOOOOOOO"
+};

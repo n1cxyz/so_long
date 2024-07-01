@@ -12,7 +12,7 @@
 #define WINDOW_WIDTH 600
 #define WINDOW_HEIGHT 300
 
-#define BUFFER_SIZE 1000000
+#define BUFFER_SIZE 1000
 
 #define Wall "./textures/wooden.xpm"
 #define Floor "./textures/grass.xpm"
@@ -22,6 +22,7 @@
 
 typedef struct s_data
 {
+	char	**map;
 	void	*mlx_ptr;
 	void	*win_ptr;
 	void	*wall_ptr;
@@ -29,6 +30,8 @@ typedef struct s_data
 	void	*player_ptr;
 	int		img_width;
 	int		img_height;
+	int		win_width;
+	int		win_height;
 	int		x;
 	int		y;
 	int		sprite_x;
@@ -38,6 +41,8 @@ typedef struct s_data
 	int		player_x;
 	int		player_y;
 }	t_data;
+
+void	ft_parse_map(t_data data, char *str);
 
 int	handle_no_event(void *data)
 {
@@ -66,7 +71,6 @@ int	handle_keypress(int keysym, t_data *data)
 	}
 	if (keysym == 13)
 	{
-
 		render_grass(data, data->player_x, data->player_y);
 		data->player_y -= 16;
 		render_player(data, data->player_x, data->player_y);
@@ -112,10 +116,12 @@ int	main(void)
 {
 	t_data	data;
 	char	buffer[BUFFER_SIZE];
+	char	*buffer_2;
 	int		fd;
 	ssize_t	bytes_read;
-	const char *map_path = "./maps/large_map.ber";
 	int	i;
+	const char *map_path = "./maps/map.ber";
+	
 
 	fd = open(map_path, O_RDONLY);
 	while ((bytes_read = read(fd, buffer, BUFFER_SIZE)) > 0)
@@ -127,10 +133,13 @@ int	main(void)
         exit(EXIT_FAILURE);
    		}
 	}
+	buffer_2 = ft_strdup(buffer);
+	ft_parse_map(data, buffer_2);
+
 	data.mlx_ptr = mlx_init();
 	if (data.mlx_ptr == NULL)
 		return (MLX_ERROR);
-	data.win_ptr = mlx_new_window(data.mlx_ptr, WINDOW_WIDTH, WINDOW_HEIGHT, "so_long");
+	data.win_ptr = mlx_new_window(data.mlx_ptr, 1920, 1080, "so_long");
 	if (data.win_ptr == NULL)
 	{
 		free(data.win_ptr);
@@ -209,4 +218,26 @@ int	main(void)
 	/* exit the loop if there's no window left, and execute this code */
 	mlx_destroy_window(data.mlx_ptr, data.win_ptr);
 	free(data.mlx_ptr);
+}
+
+void	ft_parse_map(t_data data, char *str)
+{
+	int	i;
+	//char	**result;
+
+	data.map = ft_split(str, '\n');
+	i = 1;
+	data.win_height = 0;
+	data.win_width = ft_strlen(data.map[0]);
+	printf("length is:%d\n", data.win_width);
+	while (data.map[i] != NULL)
+	{
+		if (ft_strlen(data.map[i]) != data.win_width)
+		{
+			printf("wrong line length");
+			exit (EXIT_FAILURE);
+		}
+		data.win_height++;
+		i++;
+	}
 }

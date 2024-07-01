@@ -14,9 +14,9 @@
 
 #define BUFFER_SIZE 100
 
-#define Wall "./textures/wooden.xpm"
-#define Floor "./textures/grass.xpm"
-#define Player "./textures/Skeleton.xpm"
+#define Wall "./textures/wall.xpm"
+#define Floor "./textures/floor.xpm"
+#define Player "./textures/player.xpm"
 
 #define MLX_ERROR 1
 
@@ -68,25 +68,25 @@ int	handle_keypress(int keysym, t_data *data)
 	if (keysym == 13)
 	{
 		render_grass(data, data->player_x, data->player_y);
-		data->player_y -= 16;
+		data->player_y -= 32;
 		render_player(data, data->player_x, data->player_y);
 	}
 	if (keysym == 0)
 	{
 		render_grass(data, data->player_x, data->player_y);
-		data->player_x -= 16;
+		data->player_x -= 32;
 		render_player(data, data->player_x, data->player_y);
 	}
 	if (keysym == 1)
 	{
 		render_grass(data, data->player_x, data->player_y);
-		data->player_y += 16;
+		data->player_y += 32;
 		render_player(data, data->player_x, data->player_y);
 	}
 	if (keysym == 2)
 	{
 		render_grass(data, data->player_x, data->player_y);
-		data->player_x += 16;
+		data->player_x += 32;
 		render_player(data, data->player_x, data->player_y);
 	}
 	/* if (keysym == 1)
@@ -110,7 +110,7 @@ int	handle_keypress(int keysym, t_data *data)
 
 int	main(void)
 {
-	t_data	*data;
+	t_data	data;
 	char	buffer[BUFFER_SIZE];
 	char	*buffer_2;
 	int		fd;
@@ -130,12 +130,12 @@ int	main(void)
    		}
 	}
 	buffer_2 = ft_strdup(buffer);
-	ft_parse_map(data, buffer_2);
+	//ft_parse_map(data, buffer_2);
 
 	data.mlx_ptr = mlx_init();
 	if (data.mlx_ptr == NULL)
 		return (MLX_ERROR);
-	data.win_ptr = mlx_new_window(data.mlx_ptr, 1920, 1080, "so_long");
+	data.win_ptr = mlx_new_window(data.mlx_ptr, 13 * 32, 5 * 32, "so_long");
 	if (data.win_ptr == NULL)
 	{
 		free(data.win_ptr);
@@ -163,7 +163,7 @@ int	main(void)
 	{
 		if (buffer[i] == '\n')
 		{
-			data.sprite_y += 16;
+			data.sprite_y += 32;
 			//data.grass_y += 16;
 			data.sprite_x = 0;
 			//data.grass_x = 0;
@@ -196,7 +196,7 @@ int	main(void)
 				data.player_y = data.sprite_y;
 				render_player(&data, data.sprite_x, data.sprite_y);
 			}
-			data.sprite_x += 16;
+			data.sprite_x += 32;
 		}
 		i++;
 	}
@@ -219,15 +219,15 @@ void	ft_parse_map(t_data data, char *str)
 
 	data.map = ft_split(str, '\n');
 	i = 1;
-	data.win_height = 0;
+	data.win_height = 1;
 	data.win_width = ft_strlen(data.map[0]);
 	while (data.map[i] != NULL)
 	{
-		if (ft_strlen(data.map[i]) != data.win_width)
+		/* if (ft_strlen(data.map[i]) != data.win_width)
 		{
 			printf("wrong line length");
 			exit (EXIT_FAILURE);
-		}
+		} */
 		data.win_height++;
 		i++;
 	}

@@ -1,13 +1,21 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -Iinclude -Ilib
-SRC = src/main.c src/game.c lib/libft.c
+CFLAGS = -Wall -Wextra -Werror -I./libft -I./mlx_linux
+LDFLAGS = -L./libft -lft -L./mlx_linux -lX11 -lXext
+
+SRC = events.c
 OBJ = $(SRC:.c=.o)
+
 NAME = so_long
+
+gcc -o so_long events.c -L./mlx_linux -lmlx -lX11 -lXext -I./libft -L./libft -lft
 
 all: $(NAME)
 
 $(NAME): $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(OBJS) ${LDFLAGS} -o ${NAME}
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -f $(OBJ)

@@ -1,27 +1,26 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <mlx.h>
 #include <X11/X.h>
 #include <X11/keysym.h>
 #include <string.h>
 #include "libft.h"
+#include <fcntl.h>
+#include <errno.h>
 
-#define WINDOW_WIDTH 600
-#define WINDOW_HEIGHT 300
 
-#define MLX_ERROR 1
+# define MLX_ERROR 1
 
-#define FLOOR_PATH "./textures/grass.xpm"
-#define WALL_PATH "./textures/wooden.xpm"
-#define COLLECTIBLE_PATH
-#define EXIT_PATH
-#define PLAYER_PATH
-
-#define FLOOR 0
-#define WALL 1
-#define COLLECTIBLE 2
-#define EXIT 3
-#define PLAYER 4
+# define FLOOR 0
+# define WALL 1
+# define COLLECTIBLE 2
+# define EXIT 3
+# define PLAYER 4
+# define UP 13
+# define LEFT 2
+# define DOWN 1
+# define RIGHT 2
 
 typedef struct s_vars
 {
@@ -33,3 +32,27 @@ typedef struct s_vars
 	int		x;
 	int		y;
 }	t_vars;
+
+typedef struct s_data
+{
+	void	*mlx_ptr;
+	void	*win_ptr;
+	void	*img_ptr;
+	void	*wall_ptr;
+	void	*grass_ptr;
+	void	*player_ptr;
+	char	**map;
+	char	*map_file;
+	char	*buffer;
+	int		map_x;
+	int		map_y;
+	int		win_width;
+	int		win_height;
+	int		img_width;
+	int		img_height;
+	int	x;
+	int	y;
+	const char *filename;
+
+
+}	t_data;

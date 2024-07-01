@@ -4,3 +4,4 @@ minilibx_opengl_20191021
 drawing.c
 README.md
 .DS_Store
+*.o

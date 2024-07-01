@@ -12,7 +12,7 @@
 #define WINDOW_WIDTH 600
 #define WINDOW_HEIGHT 300
 
-#define BUFFER_SIZE 1000
+#define BUFFER_SIZE 100
 
 #define Wall "./textures/wooden.xpm"
 #define Floor "./textures/grass.xpm"
@@ -30,8 +30,10 @@ typedef struct s_data
 	void	*player_ptr;
 	int		img_width;
 	int		img_height;
-	int		win_width;
-	int		win_height;
+	size_t	win_width;
+	size_t	win_height;
+	int		map_x;
+	int		map_y;
 	int		x;
 	int		y;
 	int		sprite_x;
@@ -43,12 +45,6 @@ typedef struct s_data
 }	t_data;
 
 void	ft_parse_map(t_data data, char *str);
-
-int	handle_no_event(void *data)
-{
-	/* This function needs to exist, but it is useless for the moment */
-	return (0);
-}
 
 void render_wall(t_data *data, int x, int y) {
     mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, data->wall_ptr, x, y);
@@ -63,9 +59,9 @@ void render_player(t_data *data, int x, int y) {
 
 int	handle_keypress(int keysym, t_data *data)
 {
-	if (keysym == 53)
+	if (keysym == XK_Escape)
 	{
-		//mlx_destroy_window(data->mlx_ptr, data->win_ptr);
+		mlx_destroy_window(data->mlx_ptr, data->win_ptr);
 		printf("ESC key pressed. Exiting program.\n");
 		exit (EXIT_FAILURE);
 	}
@@ -114,7 +110,7 @@ int	handle_keypress(int keysym, t_data *data)
 
 int	main(void)
 {
-	t_data	data;
+	t_data	*data;
 	char	buffer[BUFFER_SIZE];
 	char	*buffer_2;
 	int		fd;
@@ -205,17 +201,13 @@ int	main(void)
 		i++;
 	}
 	/* Setup hooks */ 
-	//mlx_loop_hook(data.mlx_ptr, &handle_no_event, &data);
 	mlx_hook(data.win_ptr, KeyPress, KeyPressMask, &handle_keypress, &data); /* ADDED */
 
-	//render_sprite(&data, 0, 0);
-	//render_sprite(&data, 0, 16);
-	//render_sprite(&data, 0, 32);
 	data.x = 0;
 	data.y = 0;
 	mlx_loop(data.mlx_ptr);
 
-	/* exit the loop if there's no window left, and execute this code */
+	/* exit the loop if there's no windmlx_destroy_window(data->mlx_ptr, data->win_ptr);ow left, and execute this code */
 	mlx_destroy_window(data.mlx_ptr, data.win_ptr);
 	free(data.mlx_ptr);
 }
@@ -229,7 +221,6 @@ void	ft_parse_map(t_data data, char *str)
 	i = 1;
 	data.win_height = 0;
 	data.win_width = ft_strlen(data.map[0]);
-	printf("length is:%d\n", data.win_width);
 	while (data.map[i] != NULL)
 	{
 		if (ft_strlen(data.map[i]) != data.win_width)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   so_long.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dasal <dasal@student.42berlin.de>          +#+  +:+       +#+        */
+/*   By: dominicasal <dominicasal@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/01 12:52:13 by dasal             #+#    #+#             */
-/*   Updated: 2024/07/01 12:52:15 by dasal            ###   ########.fr       */
+/*   Updated: 2024/07/03 01:29:27 by dominicasal      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,8 @@ void	ft_free_map(char **map);
 //		rendering
 int		ft_render_map(t_data *data);
 void	ft_render_background(t_data *data);
-int		ft_render_player(t_data *data);
 void	ft_render_sprite(t_data *data, int x, int y);
-void	ft_render_player_sprite(t_data *data);
+void	ft_render_player(t_data *data);
 //		utils
 char	*ft_strappend(char *s1, char *s2);
 //		mlx
@@ -41,7 +40,7 @@ int	main(int ac, char **av)
 	t_data	data;
 	if (ac == 2)
 	{
-		//ft_initialize_variables(&data);
+		ft_initialize_variables(&data);
 		ft_create_map(&data, av[1]);
 		ft_parse_map(&data);
 		ft_initialize_mlx(&data);
@@ -51,7 +50,7 @@ int	main(int ac, char **av)
 		
 	}
 	else
-		printf("Failed");
+		printf("map file missing\n");
 
 	return (0);
 }
@@ -65,25 +64,47 @@ void	ft_create_hooks(t_data *data)
 
 int	ft_handle_keypress(int keysym, t_data *data)
 {
-	if (keysym == XK_Escape)
+	if (keysym == XK_Escape || keysym == 53)
 	{
 		mlx_destroy_window(data->mlx_ptr, data->win_ptr);
 		printf("ESC key pressed. Exiting program.\n");
 		exit (EXIT_FAILURE);
 	}
-	if (keysym == XK_w)
+	if (keysym == XK_w || keysym == 13)
 	{
-		if (!(data->map[data->player_y - 1][data->player_x] == '1'))
+		if ((data->map[data->player_y - 1][data->player_x] != '1') && ((data->map[data->player_y - 1][data->player_x] != 'E' || data->collectible_count == 0)))
 			data->player_y -= 1;
-		printf("w key pressed.\n");
-		printf("player coordinates:%d %d\n", data->player_y, data->player_x);
+	}
+    if (keysym == XK_a || keysym == 0)
+	{
+		if ((data->map[data->player_y][data->player_x - 1] != '1') && ((data->map[data->player_y][data->player_x - 1] != 'E' || data->collectible_count == 0)))
+			data->player_x -= 1;
+	}
+    if (keysym == XK_s || keysym == 1)
+	{
+		if ((data->map[data->player_y + 1][data->player_x] != '1') && ((data->map[data->player_y + 1][data->player_x] != 'E' || data->collectible_count == 0)))
+			data->player_y += 1;
+	}
+    if (keysym == XK_d || keysym == 2)
+	{
+		if ((data->map[data->player_y][data->player_x + 1] != '1') && ((data->map[data->player_y][data->player_x + 1] != 'E' || data->collectible_count == 0)))
+			data->player_x += 1;
+	}
+    data->moves++;
+    printf("Moves: %d\n", data->moves);
+
+	if (data->map[data->player_y][data->player_x] == 'C')
+	{
+		data->map[data->player_y][data->player_x] = '0';
+		data->collectible_count--;
+		printf("collectibles:%d\n", data->collectible_count);
 	}
 	return (0);
 }
 int	ft_render_map(t_data *data)
 {	
 	ft_render_background(data);
-	ft_render_player_sprite(data);
+	ft_render_player(data);
 	return (0);
 }
 
@@ -143,19 +164,28 @@ void	ft_render_sprite(t_data *data, int x, int y)
 	type = data->map[y][x];
 	if (type == '1')
 		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
-	data->wall_ptr, data->map_x * 36, data->map_y * 36);
+		data->wall_ptr, data->map_x * SPRITE_SIZE, data->map_y * SPRITE_SIZE);
+	else if (type == 'E' && data->collectible_count != 0)
+		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
+		data->closed_exit_ptr, data->map_x * SPRITE_SIZE, data->map_y * SPRITE_SIZE);
+	else if (type == 'E' && data->collectible_count == 0)
+		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
+		data->open_exit_ptr, data->map_x * SPRITE_SIZE, data->map_y * SPRITE_SIZE);
 	/* if (type == 'P')
 		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
 	data->player_ptr, data->player_x, data->player_y); */
 	else
 		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
-	data->floor_ptr, data->map_x * 36, data->map_y * 36);
+	data->floor_ptr, data->map_x * SPRITE_SIZE, data->map_y * SPRITE_SIZE);
+	if (type == 'C')
+		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
+	data->collectible_ptr, data->map_x * SPRITE_SIZE, data->map_y * SPRITE_SIZE);
 }
 
-void	ft_render_player_sprite(t_data *data)
+void	ft_render_player(t_data *data)
 {
 	mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
-	data->player_ptr, data->player_x * 36, data->player_y * 36);
+	data->player_ptr, data->player_x * SPRITE_SIZE, data->player_y * SPRITE_SIZE - 6);
 }
 
 int	ft_initialize_mlx(t_data *data)
@@ -202,10 +232,12 @@ void	ft_create_map(t_data *data, char *file)
 		}
 	free (data->map_file);
 }
-/* void	ft_initialize_variables(t_data *data)
+void	ft_initialize_variables(t_data *data)
 {
+    data->moves = 0;
+	data->collectible_count = 0;
 	
-} */
+}
 
 void	ft_error_exit(char *message)
 {
@@ -235,7 +267,7 @@ void	ft_free_map(char **map)
 void	ft_file_to_image(t_data *data)
 {
 	data->floor_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
-	"./textures/floor.xpm", &data->img_width, &data->img_height);
+	"./textures/grass.xpm", &data->img_width, &data->img_height);
 	if (data->floor_ptr == NULL) {
        fprintf(stderr, "Error: Failed to load sprite image\n");
        exit (MLX_ERROR);
@@ -247,11 +279,18 @@ void	ft_file_to_image(t_data *data)
        exit (MLX_ERROR);
 	}
 	data->player_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
-	"./textures/player.xpm", &data->img_width, &data->img_height);
+	"./textures/guy_front.xpm", &data->img_width, &data->img_height);
 	if (data->player_ptr == NULL) {
        fprintf(stderr, "Error: Failed to load sprite image\n");
        exit (MLX_ERROR);
 	}
+	data->collectible_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
+	"./textures/trans_char.xpm", &data->img_width, &data->img_height);
+	data->open_exit_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
+	"./textures/port1.xpm", &data->img_width, &data->img_height);
+	data->closed_exit_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
+	"./textures/closed.xpm", &data->img_width, &data->img_height);
+
 }
 
 void	ft_parse_map(t_data *data)
@@ -290,6 +329,8 @@ void	ft_find_player(t_data *data)
 				data->player_x = x;
 				data->player_y = y;
 			}
+			if (data->map[y][x] == 'C')
+				data->collectible_count++;
 			x++;
 		}
 		y++;	

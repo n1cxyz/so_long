@@ -11,7 +11,7 @@
 
 
 # define MLX_ERROR 1
-# define SPRITE_SIZE 36
+# define SPRITE_SIZE 32
 
 # define FLOOR 0
 # define WALL 1
@@ -56,9 +56,9 @@ typedef struct s_data
 	int		win_height;
 	int		img_width;
 	int		img_height;
-	int	x;
-	int	y;
+	int		moves;
+	int		x;
+	int		y;
 	const char *filename;
-
-
+	int		collectible_count;
 }	t_data;

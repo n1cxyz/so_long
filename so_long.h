@@ -50,6 +50,8 @@ typedef struct s_data
 	char	*buffer;
 	int		map_x;
 	int		map_y;
+	int		player_x;
+	int		player_y;
 	int		win_width;
 	int		win_height;
 	int		img_width;

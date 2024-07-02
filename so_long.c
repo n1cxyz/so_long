@@ -12,11 +12,22 @@
 
 #include "so_long.h"
 
-void	ft_initialize_map(t_data *data, char *file);
+void	ft_create_map(t_data *data, char *file);
 void	ft_initialize_variables(t_data *data);
-char	*ft_strappend(char *s1, char *s2);
-int		ft_initialize_mlx(t_data *data);
 void	ft_parse_map(t_data *data);
+//		error
+void	ft_error_free_exit(char **map, char *message);
+void	ft_error_exit(char *message);
+void	ft_free_map(char **map);
+//		rendering
+void	ft_render_map(t_data *data);
+void	ft_render_background(t_data *data);
+void	ft_render_sprite(t_data *data, int x, int y);
+//		utils
+char	*ft_strappend(char *s1, char *s2);
+//		mlx
+void	ft_file_to_image(t_data *data);
+int		ft_initialize_mlx(t_data *data);
 
 int	main(int ac, char **av)
 {
@@ -24,9 +35,11 @@ int	main(int ac, char **av)
 	if (ac == 2)
 	{
 		//ft_initialize_variables(&data);
-		ft_initialize_map(&data, av[1]);
+		ft_create_map(&data, av[1]);
 		ft_parse_map(&data);
 		ft_initialize_mlx(&data);
+		ft_render_map(&data);
+		mlx_loop(data.mlx_ptr);
 		
 	}
 	else
@@ -35,6 +48,63 @@ int	main(int ac, char **av)
 	return (0);
 }
 
+void	ft_render_map(t_data *data)
+{	
+	ft_render_background(data);
+	//ft_render_player();
+}
+
+void	ft_render_background(t_data *data)
+{
+	int	x;
+	int	y;
+
+	y = 0;
+	data->map_y = 0;
+	while (y < data->win_height)
+	{
+		x = 0;
+		data->map_x = 0;
+		while (x < data->win_width)
+		{
+			ft_render_sprite(data, x, y);
+			x++;
+			data->map_x += SPRITE_SIZE;
+		}
+		y++;
+		data->map_y += SPRITE_SIZE;		
+	}
+}
+
+/* void	ft_render_sprite(t_data *data, int x, int y)
+{
+	char	type;
+
+	type = data->map[y][x];
+	if (type == '0')
+	{
+		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
+	data->floor_ptr, data->map_x, data->map_y);
+	}
+	else if (type == '1')
+		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
+	data->wall_ptr, data->map_x, data->map_y);
+	else
+		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
+	data->floor_ptr, data->map_x, data->map_y);
+} */
+void	ft_render_sprite(t_data *data, int x, int y)
+{
+	char	type;
+
+	type = data->map[y][x];
+	if (type == '1')
+		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
+	data->wall_ptr, data->map_x, data->map_y);
+	else
+		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
+	data->floor_ptr, data->map_x, data->map_y);
+}
 void	ft_parse_map(t_data *data)
 {
 	int	i;
@@ -59,36 +129,19 @@ int	ft_initialize_mlx(t_data *data)
 	data->mlx_ptr = mlx_init();
 	if (data->mlx_ptr == NULL)
 		return (MLX_ERROR);
-	data->win_ptr = mlx_new_window(data->mlx_ptr, data->win_width * 16, \
-									data->win_height * 16, "so_long");
+	data->win_ptr = mlx_new_window(data->mlx_ptr, \
+	data->win_width * SPRITE_SIZE, data->win_height * SPRITE_SIZE, "so_long");
 	if (data->win_ptr == NULL)
 	{
 		free(data->win_ptr);
 		return (MLX_ERROR);
 	}
-	printf("width:%d\n", data->win_width);
-	printf("heigth:%d\n", data->win_height);
-	/* data->wall_ptr = mlx_xpm_file_to_image(data->mlx_ptr, Wall, &data.img_width, &data.img_height);
-    if (data->wall_ptr == NULL) {
-        fprintf(stderr, "Error: Failed to load sprite image\n");
-        return MLX_ERROR;
-    }
-	data->grass_ptr = mlx_xpm_file_to_image(data->mlx_ptr, Floor, &data.img_width, &data.img_height);
-    if (data->grass_ptr == NULL) {
-        fprintf(stderr, "Error: Failed to load sprite image\n");
-        return MLX_ERROR;
-    }
-	data->player_ptr = mlx_xpm_file_to_image(data->mlx_ptr, Player, &data.img_width, &data.img_height);
-    if (data->player_ptr == NULL) {
-        fprintf(stderr, "Error: Failed to load sprite image\n");
-        return MLX_ERROR;
-    } */
-	//mlx_hook(data->win_ptr, KeyPress, KeyPressMask, &handle_keypress, &data);
-	mlx_loop(data->mlx_ptr);
+	ft_file_to_image(data);
+	//mlx_loop(data->mlx_ptr);
 	return (0);
 }
 
-void	ft_initialize_map(t_data *data, char *file)
+void	ft_create_map(t_data *data, char *file)
 {
 	int		fd;
 	char	*buffer;
@@ -97,10 +150,7 @@ void	ft_initialize_map(t_data *data, char *file)
 	data->map_file = NULL;
 	fd = open(file, O_RDONLY);
 	if (fd == -1)
-		{
-			printf("error opening file");
-			exit (EXIT_FAILURE);
-		}
+		ft_error_exit("error opening file\n");
 	while (1)
 	{
 		buffer = get_next_line(fd);
@@ -113,8 +163,8 @@ void	ft_initialize_map(t_data *data, char *file)
 	data->map = ft_split(data->map_file, '\n');
 	if (!data->map)
 		{
-			printf("error initializing map");
-			exit (EXIT_FAILURE);
+			free (data->map_file);
+			ft_error_free_exit(data->map, "failed to initialize map\n");
 		}
 	free (data->map_file);
 }
@@ -147,3 +197,50 @@ char	*ft_strappend(char *s1, char *s2)
 {
 	
 } */
+
+void	ft_error_exit(char *message)
+{
+	write(2, message, ft_strlen(message));
+	exit (EXIT_FAILURE);
+}
+
+void	ft_error_free_exit(char **map, char *message)
+{
+	ft_free_map(map);
+	write(2, message, ft_strlen(message));
+	exit (EXIT_FAILURE);
+}
+
+void	ft_free_map(char **map)
+{
+	int	i;
+
+	i = 0;
+	while (map[i] != NULL)
+	{
+		free(map[i]);
+		i++;
+	}
+}
+
+void	ft_file_to_image(t_data *data)
+	{
+		data->floor_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
+		"./textures/floor.xpm", &data->img_width, &data->img_height);
+		if (data->floor_ptr == NULL) {
+        fprintf(stderr, "Error: Failed to load sprite image\n");
+        exit (MLX_ERROR);
+		}
+		data->wall_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
+		"./textures/wall.xpm", &data->img_width, &data->img_height);
+		if (data->wall_ptr == NULL) {
+        fprintf(stderr, "Error: Failed to load sprite image\n");
+        exit (MLX_ERROR);
+		}
+		data->player_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
+		"./textures/player.xpm", &data->img_width, &data->img_height);
+		if (data->player_ptr == NULL) {
+        fprintf(stderr, "Error: Failed to load sprite image\n");
+        exit (MLX_ERROR);
+		}
+	}

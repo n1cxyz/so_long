@@ -11,6 +11,7 @@
 
 
 # define MLX_ERROR 1
+# define SPRITE_SIZE 36
 
 # define FLOOR 0
 # define WALL 1
@@ -39,8 +40,11 @@ typedef struct s_data
 	void	*win_ptr;
 	void	*img_ptr;
 	void	*wall_ptr;
-	void	*grass_ptr;
+	void	*floor_ptr;
 	void	*player_ptr;
+	void	*collectible_ptr;
+	void	*open_exit_ptr;
+	void	*closed_exit_ptr;
 	char	**map;
 	char	*map_file;
 	char	*buffer;

@@ -12,7 +12,8 @@
 #define WINDOW_WIDTH 600
 #define WINDOW_HEIGHT 300
 
-#define BUFFER_SIZE 100
+#define BUFFER_SIZE 10000
+# define SPRITE_SIZE 36
 
 #define Wall "./textures/wall.xpm"
 #define Floor "./textures/floor.xpm"

@@ -1,6 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
+/*   test.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: dasal <dasal@student.42berlin.de>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/07/05 11:38:30 by dasal             #+#    #+#             */
+/*   Updated: 2024/07/05 11:38:34 by dasal            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
 /*   so_long.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dominicasal <dominicasal@student.42.fr>    +#+  +:+       +#+        */
@@ -41,6 +53,7 @@ void	ft_file_to_image(t_data *data);
 void	ft_player_to_image(t_data *data);
 void	ft_animation_to_image(t_data *data); //bonus
 int		ft_initialize_mlx(t_data *data);
+void	ft_malloc_array(t_data *data, char *mlx_path);
 //		hooks
 void	ft_create_hooks(t_data *data);
 int		ft_handle_keypress(int keysym, t_data *data);
@@ -172,20 +185,20 @@ void	ft_render_sprite(t_data *data, int x, int y)
 	type = data->map[y][x];
 	if (type == '1')
 		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
-		data->wall_ptr, x * SPRITE_SIZE, y * SPRITE_SIZE);
+		data->mlx_array[1], x * SPRITE_SIZE, y * SPRITE_SIZE);
 	else if (type == 'E' && data->collectible_count != 0)
 		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
-		data->closed_exit_ptr, x * SPRITE_SIZE, y * SPRITE_SIZE);
+		data->mlx_array[4], x * SPRITE_SIZE, y * SPRITE_SIZE);
 	else if (type == 'E' && data->collectible_count == 0)
 		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
-		data->open_exit_ptr, x * SPRITE_SIZE, y * SPRITE_SIZE);
+		data->mlx_array[3], x * SPRITE_SIZE, y * SPRITE_SIZE);
 		//ft_render_animation(data, x, y); //bonus
 	else
 		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
-	data->floor_ptr, x * SPRITE_SIZE, y * SPRITE_SIZE);
+	data->mlx_array[0], x * SPRITE_SIZE, y * SPRITE_SIZE); //mark
 	if (type == 'C')
 		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
-	data->collectible_ptr, x * SPRITE_SIZE, y * SPRITE_SIZE);
+	data->mlx_array[2], x * SPRITE_SIZE, y * SPRITE_SIZE);
 }
 
 void	ft_render_animation(t_data *data, int x, int y) //bonus
@@ -208,19 +221,19 @@ void	ft_render_player(t_data *data)
 {
 	if (data->player_direction == 1)
 		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
-	data->player_back_ptr, data->player_x * SPRITE_SIZE, \
+	data->mlx_array[5], data->player_x * SPRITE_SIZE, \
 	data->player_y * SPRITE_SIZE - 6);
 	if (data->player_direction == 2)
 		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
-	data->player_left_ptr, data->player_x * SPRITE_SIZE, \
+	data->mlx_array[7], data->player_x * SPRITE_SIZE, \
 	data->player_y * SPRITE_SIZE - 6);
 	if (data->player_direction == 3)
 		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
-	data->player_front_ptr, data->player_x * SPRITE_SIZE, \
+	data->mlx_array[6], data->player_x * SPRITE_SIZE, \
 	data->player_y * SPRITE_SIZE - 6);
 	if (data->player_direction == 4)
 		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
-	data->player_right_ptr, data->player_x * SPRITE_SIZE, \
+	data->mlx_array[8], data->player_x * SPRITE_SIZE, \
 	data->player_y * SPRITE_SIZE - 6);	
 }
 
@@ -236,8 +249,17 @@ int	ft_initialize_mlx(t_data *data)
 		free(data->mlx_ptr);
 		ft_error_free_map_exit(data, "Error\nfailed to create new window");
 	}
-	ft_file_to_image(data);
-	return (0);
+	//ft_file_to_image(data);
+    ft_malloc_array(data, FLOOR_0);//mark
+	ft_malloc_array(data, WALL_1);
+    ft_malloc_array(data, COLLECTIBLE_2);
+    ft_malloc_array(data, EXIT_OPEN_3);
+    ft_malloc_array(data, EXIT_CLOSED_4);
+    ft_malloc_array(data, PLAYER_BACK_5);
+    ft_malloc_array(data, PLAYER_FRONT_6);
+    ft_malloc_array(data, PLAYER_LEFT_7);
+    ft_malloc_array(data, PLAYER_RIGHT_8);
+    return (0);
 }
 
 void	ft_create_map(t_data *data, char *file)
@@ -280,6 +302,7 @@ void	ft_initialize_variables(t_data *data)
 	data->exit_count = 0;	
 	data->to_collect = 0;
 	data->win_height = 1;
+	data->array_count = 0;
 }
 
 void	ft_error_exit(char *message)
@@ -321,41 +344,109 @@ void	ft_free_map(char **map)
 	}
 	free (map);
 }
-
-void	ft_file_to_image(t_data *data)
+void	ft_malloc_array(t_data *data, char *mlx_path)// mark
 {
-	ft_player_to_image(data);
+	char *mlx_pointer;
+
+	mlx_pointer = mlx_xpm_file_to_image(data->mlx_ptr, \
+	mlx_path, &data->img_width, &data->img_height);
+    if (!mlx_pointer)
+    {
+        ft_error_exit("Error\nfailed to load file\n");
+    }
+	data->mlx_array[data->array_count] = ft_strdup(mlx_pointer);
+    if (!data->mlx_array[data->array_count])
+    {
+        ft_error_exit("Error\nfailed to dup file\n");
+    }
+	data->array_count++;
+	/* if (data->floor_ptr == NULL)
+	{
+		mlx_destroy_window(data->mlx_ptr, data->win_ptr);
+		mlx_destroy_display(data->mlx_ptr);
+		free(data->mlx_ptr);
+		ft_error_free_map_exit(data, "Error: Failed to load sprite\n");
+	} */
+}
+/* void	ft_file_to_image(t_data *data)
+{
 	//ft_animation_to_image(data); //bonus
 	data->floor_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
-	FLOOR, &data->img_width, &data->img_height);
+	FLOOR_0, &data->img_width, &data->img_height);
+	if (data->floor_ptr == NULL)
+	{
+		mlx_destroy_window(data->mlx_ptr, data->win_ptr);
+		mlx_destroy_display(data->mlx_ptr);
+		free(data->mlx_ptr);
+		ft_error_free_map_exit(data, "Error: Failed to load sprite\n");
+	}
 	data->wall_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
 	WALL, &data->img_width, &data->img_height);
+	if (data->wall_ptr == NULL)
+	{
+		mlx_destroy_image(data->mlx_ptr, data->floor_ptr);
+		mlx_destroy_window(data->mlx_ptr, data->win_ptr);
+		mlx_destroy_display(data->mlx_ptr);
+		free(data->mlx_ptr);
+		ft_error_free_map_exit(data, "Error: Failed to load sprite\n");
+	}
 	data->collectible_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
 	COLLECTIBLE, &data->img_width, &data->img_height);
 	data->open_exit_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
 	EXIT_OPEN, &data->img_width, &data->img_height);
 	data->closed_exit_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
 	EXIT_CLOSED, &data->img_width, &data->img_height);
-}
+	ft_player_to_image(data);
+} */
 
 void	ft_player_to_image(t_data *data)
 {
 	data->player_front_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
-	PLAYER_FRONT, &data->img_width, &data->img_height);
+	PLAYER_FRONT_6, &data->img_width, &data->img_height);
+	if (data->player_front_ptr == NULL)
+	{
+       fprintf(stderr, "Error: Failed to load sprite image\n");
+       exit (MLX_ERROR);
+	}
 	data->player_back_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
-	PLAYER_BACK, &data->img_width, &data->img_height);
+	PLAYER_BACK_5, &data->img_width, &data->img_height);
+	if (data->player_back_ptr == NULL)
+	{
+       fprintf(stderr, "Error: Failed to load sprite image\n");
+       exit (MLX_ERROR);
+	}
 	data->player_left_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
-	PLAYER_LEFT, &data->img_width, &data->img_height);
+	PLAYER_LEFT_7, &data->img_width, &data->img_height);
+	if (data->player_left_ptr == NULL)
+	{
+       fprintf(stderr, "Error: Failed to load sprite image\n");
+       exit (MLX_ERROR);
+	}
 	data->player_right_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
-	PLAYER_RIGHT, &data->img_width, &data->img_height);
+	PLAYER_RIGHT_8, &data->img_width, &data->img_height);
+	if (data->player_right_ptr == NULL)
+	{
+       fprintf(stderr, "Error: Failed to load sprite image\n");
+       exit (MLX_ERROR);
+	}
 }
-void	ft_animation_to_image(t_data *data) //bonus
+/* void	ft_animation_to_image(t_data *data) //bonus
 {
 	data->open_2_exit_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
 	EXIT_OPEN_2, &data->img_width, &data->img_height);
+	if (data->open_2_exit_ptr == NULL)
+	{
+       fprintf(stderr, "Error: Failed to load sprite image\n");
+       exit (MLX_ERROR);
+	}
 	data->open_3_exit_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
 	EXIT_OPEN_3, &data->img_width, &data->img_height);
-}
+	if (data->open_3_exit_ptr == NULL)
+	{
+       fprintf(stderr, "Error: Failed to load sprite image\n");
+       exit (MLX_ERROR);
+	}
+} */
 void	ft_destroy_images(t_data *data)
 {
 	mlx_destroy_image(data->mlx_ptr, data->player_front_ptr);

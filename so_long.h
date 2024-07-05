@@ -18,8 +18,8 @@
 # define COLLECTIBLE "./textures/trans_char.xpm"
 # define EXIT_OPEN "./textures/port1.xpm"
 # define EXIT_CLOSED "./textures/closed.xpm"
-# define PLAYER_FRONT "./textures/guy_front.xpm"
 # define PLAYER_BACK "./textures/guy_back.xpm"
+# define PLAYER_FRONT "./textures/guy_front.xpm"
 # define PLAYER_LEFT "./textures/guy_left.xpm"
 # define PLAYER_RIGHT "./textures/guy_right.xpm"
 # define EXIT_OPEN_2 "./textures/port2.xpm"
@@ -53,14 +53,14 @@ typedef struct s_data
 	void	*player_right_ptr;
 	void	*collectible_ptr;
 	void	*open_exit_ptr;
-	void	*open_2_exit_ptr;
-	void	*open_3_exit_ptr;
+	void	*open_2_exit_ptr; //bonus
+	void	*open_3_exit_ptr; //bonus
 	void	*closed_exit_ptr;
+	char	**mlx_array;
 	char	**map;
+	char	**map_copy;
 	char	*map_file;
 	char	*buffer;
-	int		map_x;
-	int		map_y;
 	int		player_x;
 	int		player_y;
 	int		player_direction;
@@ -72,6 +72,10 @@ typedef struct s_data
 	int		x;
 	int		y;
 	const char *filename;
+	int		to_collect;
 	int		collectible_count;
-	int		animation_count;
+	int		animation_count; //bonus
+	int		exit_count;
+	int		player_count;
+	int		array_count;
 }	t_data;

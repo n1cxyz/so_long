@@ -7,7 +7,7 @@ OBJ = $(SRC:.c=.o)
 
 NAME = so_long
 
-gcc -o so_long events.c -L./mlx_linux -lmlx -lX11 -lXext -I./libft -L./libft -lft
+gcc -o so_long so_long.c -L./mlx_linux -lmlx -lX11 -lXext -I./libft -L./libft -lft
 
 all: $(NAME)
 

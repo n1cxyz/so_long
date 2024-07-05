@@ -35,7 +35,7 @@ void	ft_render_player(t_data *data);
 void	ft_render_animation(t_data *data, int x, int y); //bonus
 //		utils
 char	*ft_strappend(char *s1, char *s2);
-void	ft_print_moves(int n);
+void	ft_print_moves(int n, t_data *data);
 //		mlx
 void	ft_file_to_image(t_data *data);
 void	ft_player_to_image(t_data *data);
@@ -63,13 +63,13 @@ int	main(int ac, char **av)
 		write(2, "Error\nmap file missing", 22);
 	/* TO DO:
 	https://reactive.so/post/42-a-comprehensive-guide-to-so_long
-	-check memory management
-	-close window with x 
-	-file to image error handling
-	-sprite transparency
-	-exit game if game won 
+	-close window with x
 	-movement count on screen 
-	-enemy */
+	-sprite transparency
+	-enemy
+	-check memory management	
+	-file to image error handling
+	-exit game if game won
 	return (0);
 }
 
@@ -117,7 +117,7 @@ int	ft_handle_keypress(int keysym, t_data *data)
 		data->player_direction = 4;
 	}
     data->moves++;
-    ft_print_moves(data->moves);
+    ft_print_moves(data->moves, data);
 	if (data->map[data->player_y][data->player_x] == 'C')
 	{
 		data->map[data->player_y][data->player_x] = '0';
@@ -127,7 +127,7 @@ int	ft_handle_keypress(int keysym, t_data *data)
 		ft_error_free_all_exit(data, "You won!");		
 	return (0);
 }
-void	ft_print_moves(int n)
+void	ft_print_moves(int n, t_data *data)
 {
 	char	*to_print;
 
@@ -139,6 +139,7 @@ void	ft_print_moves(int n)
 		write(1, "\n", 1);
 		free(to_print);
 	}
+	//mlx_string_put(data->mlx_ptr, data->win_ptr, 0, 10, 0xFFFFFF, to_print); // bonuse
 }
 int	ft_render_map(t_data *data)
 {	
@@ -221,7 +222,8 @@ void	ft_render_player(t_data *data)
 	if (data->player_direction == 4)
 		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
 	data->player_right_ptr, data->player_x * SPRITE_SIZE, \
-	data->player_y * SPRITE_SIZE - 6);	
+	data->player_y * SPRITE_SIZE - 6);
+	//ft_print_moves(data->moves, data);
 }
 
 int	ft_initialize_mlx(t_data *data)
@@ -280,6 +282,15 @@ void	ft_initialize_variables(t_data *data)
 	data->exit_count = 0;	
 	data->to_collect = 0;
 	data->win_height = 1;
+	data->wall_ptr = NULL;
+	data->player_front_ptr = NULL;
+	data->player_back_ptr = NULL;
+	data->player_left_ptr = NULL;
+	data->player_right_ptr = NULL;
+	data->floor_ptr = NULL;
+	data->collectible_ptr = NULL;
+	data->open_exit_ptr = NULL;
+	data->closed_exit_ptr = NULL;
 }
 
 void	ft_error_exit(char *message)
@@ -290,6 +301,7 @@ void	ft_error_exit(char *message)
 
 void	ft_error_free_map_exit(t_data *data, char *message)
 {
+	ft_destroy_images(data);
 	ft_free_map(data->map);
 	ft_free_map(data->map_copy);
 	write(2, message, ft_strlen(message));
@@ -324,30 +336,49 @@ void	ft_free_map(char **map)
 
 void	ft_file_to_image(t_data *data)
 {
-	ft_player_to_image(data);
+	//ft_player_to_image(data);
 	//ft_animation_to_image(data); //bonus
 	data->floor_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
 	FLOOR, &data->img_width, &data->img_height);
+	if (data->floor_ptr == NULL)
+		ft_error_free_all_exit(data, "failed to load immage");
 	data->wall_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
 	WALL, &data->img_width, &data->img_height);
+	if (data->wall_ptr == NULL)
+		ft_error_free_all_exit(data, "failed to load immage");
 	data->collectible_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
 	COLLECTIBLE, &data->img_width, &data->img_height);
+	if (data->collectible_ptr == NULL)
+		ft_error_free_all_exit(data, "failed to load immage");
 	data->open_exit_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
 	EXIT_OPEN, &data->img_width, &data->img_height);
+	if (data->open_exit_ptr == NULL)
+		ft_error_free_all_exit(data, "failed to load immage");
 	data->closed_exit_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
 	EXIT_CLOSED, &data->img_width, &data->img_height);
+	if (data->closed_exit_ptr == NULL)
+		ft_error_free_all_exit(data, "failed to load immage");
+	ft_player_to_image(data);
 }
 
 void	ft_player_to_image(t_data *data)
 {
 	data->player_front_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
 	PLAYER_FRONT, &data->img_width, &data->img_height);
+	if (data->player_front_ptr == NULL)
+		ft_error_free_all_exit(data, "failed to load immage");
 	data->player_back_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
 	PLAYER_BACK, &data->img_width, &data->img_height);
+	if (data->player_back_ptr == NULL)
+		ft_error_free_all_exit(data, "failed to load immage");
 	data->player_left_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
 	PLAYER_LEFT, &data->img_width, &data->img_height);
+	if (data->player_left_ptr == NULL)
+		ft_error_free_all_exit(data, "failed to load immage");
 	data->player_right_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
 	PLAYER_RIGHT, &data->img_width, &data->img_height);
+	if (data->player_right_ptr == NULL)
+		ft_error_free_all_exit(data, "failed to load immage");
 }
 void	ft_animation_to_image(t_data *data) //bonus
 {
@@ -358,15 +389,24 @@ void	ft_animation_to_image(t_data *data) //bonus
 }
 void	ft_destroy_images(t_data *data)
 {
-	mlx_destroy_image(data->mlx_ptr, data->player_front_ptr);
-	mlx_destroy_image(data->mlx_ptr, data->player_back_ptr);
-	mlx_destroy_image(data->mlx_ptr, data->player_left_ptr);
-	mlx_destroy_image(data->mlx_ptr, data->player_right_ptr);
-	mlx_destroy_image(data->mlx_ptr, data->floor_ptr);
-	mlx_destroy_image(data->mlx_ptr, data->wall_ptr);
-	mlx_destroy_image(data->mlx_ptr, data->collectible_ptr);
-	mlx_destroy_image(data->mlx_ptr, data->open_exit_ptr);
-	mlx_destroy_image(data->mlx_ptr, data->closed_exit_ptr);
+	if (data->player_front_ptr)
+		mlx_destroy_image(data->mlx_ptr, data->player_front_ptr);
+	if (data->player_back_ptr)
+		mlx_destroy_image(data->mlx_ptr, data->player_back_ptr);
+	if (data->player_left_ptr)
+		mlx_destroy_image(data->mlx_ptr, data->player_left_ptr);
+	if (data->player_right_ptr)
+		mlx_destroy_image(data->mlx_ptr, data->player_right_ptr);
+	if (data->floor_ptr)
+		mlx_destroy_image(data->mlx_ptr, data->floor_ptr);
+	if (data->wall_ptr)
+		mlx_destroy_image(data->mlx_ptr, data->wall_ptr);
+	if (data->collectible_ptr)
+		mlx_destroy_image(data->mlx_ptr, data->collectible_ptr);
+	if (data->open_exit_ptr)
+		mlx_destroy_image(data->mlx_ptr, data->open_exit_ptr);
+	if (data->closed_exit_ptr)
+		mlx_destroy_image(data->mlx_ptr, data->closed_exit_ptr);
 	//mlx_destroy_image(data->mlx_ptr, data->open_2_exit_ptr); //bonus
 	//mlx_destroy_image(data->mlx_ptr, data->open_3_exit_ptr); //bonus
 }
@@ -403,9 +443,6 @@ void	ft_parse_map(t_data *data, char *map_file)
 
 int	ft_flood_fill(t_data *data, int y, int x)
 {
-	/* if (data->map[y + 1][x] == '1' || data->map[y - 1][x] == '1' || \
-	data->map[y][x + 1] == '1' || data->map[y][x - 1] == '1')
-		return (1); */
 	if (data->map_copy[y][x] == '1' || data->map_copy[y][x] == 'v')
 		return (1);
 	if (data->map_copy[y][x] == 'E')

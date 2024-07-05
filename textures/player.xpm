@@ -6,7 +6,7 @@ static char *player[] = {
 ". c #3A0911",
 "X c #811426",
 "o c #A11B31",
-"O c white",
+"O c #0xFF",
 /* pixels */
 "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
 "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",

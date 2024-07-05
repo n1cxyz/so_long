@@ -2,22 +2,29 @@
 triple:          'arm64-apple-darwin'
 binary-path:     so_long
 relocations:
-  - { offsetInCU: 0x26, offset: 0x26, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0x0, symBinAddr: 0x1000091A8, symSize: 0x8C }
-  - { offsetInCU: 0x47, offset: 0x47, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0x0, symBinAddr: 0x1000091A8, symSize: 0x8C }
-  - { offsetInCU: 0x8B, offset: 0x8B, size: 0x8, addend: 0x0, symName: _ft_initialize_variables, symObjAddr: 0x8C, symBinAddr: 0x100009234, symSize: 0x20 }
-  - { offsetInCU: 0xAF, offset: 0xAF, size: 0x8, addend: 0x0, symName: _ft_create_map, symObjAddr: 0xAC, symBinAddr: 0x100009254, symSize: 0x110 }
-  - { offsetInCU: 0x10B, offset: 0x10B, size: 0x8, addend: 0x0, symName: _ft_parse_map, symObjAddr: 0x1BC, symBinAddr: 0x100009364, symSize: 0xD4 }
-  - { offsetInCU: 0x140, offset: 0x140, size: 0x8, addend: 0x0, symName: _ft_initialize_mlx, symObjAddr: 0x290, symBinAddr: 0x100009438, symSize: 0xC4 }
-  - { offsetInCU: 0x168, offset: 0x168, size: 0x8, addend: 0x0, symName: _ft_create_hooks, symObjAddr: 0x354, symBinAddr: 0x1000094FC, symSize: 0x54 }
-  - { offsetInCU: 0x18C, offset: 0x18C, size: 0x8, addend: 0x0, symName: _ft_handle_keypress, symObjAddr: 0x3A8, symBinAddr: 0x100009550, symSize: 0x434 }
-  - { offsetInCU: 0x1C2, offset: 0x1C2, size: 0x8, addend: 0x0, symName: _ft_render_map, symObjAddr: 0x7DC, symBinAddr: 0x100009984, symSize: 0x30 }
-  - { offsetInCU: 0x1EA, offset: 0x1EA, size: 0x8, addend: 0x0, symName: _ft_render_background, symObjAddr: 0x80C, symBinAddr: 0x1000099B4, symSize: 0xC4 }
-  - { offsetInCU: 0x22A, offset: 0x22A, size: 0x8, addend: 0x0, symName: _ft_render_player, symObjAddr: 0x8D0, symBinAddr: 0x100009A78, symSize: 0x54 }
-  - { offsetInCU: 0x24E, offset: 0x24E, size: 0x8, addend: 0x0, symName: _ft_render_sprite, symObjAddr: 0x924, symBinAddr: 0x100009ACC, symSize: 0x1E4 }
-  - { offsetInCU: 0x29C, offset: 0x29C, size: 0x8, addend: 0x0, symName: _ft_file_to_image, symObjAddr: 0xB08, symBinAddr: 0x100009CB0, symSize: 0x1CC }
-  - { offsetInCU: 0x2C2, offset: 0x2C2, size: 0x8, addend: 0x0, symName: _ft_error_exit, symObjAddr: 0xCD4, symBinAddr: 0x100009E7C, symSize: 0x38 }
-  - { offsetInCU: 0x2E6, offset: 0x2E6, size: 0x8, addend: 0x0, symName: _ft_strappend, symObjAddr: 0xD0C, symBinAddr: 0x100009EB4, symSize: 0xFC }
-  - { offsetInCU: 0x34C, offset: 0x34C, size: 0x8, addend: 0x0, symName: _ft_error_free_exit, symObjAddr: 0xE08, symBinAddr: 0x100009FB0, symSize: 0x44 }
-  - { offsetInCU: 0x37E, offset: 0x37E, size: 0x8, addend: 0x0, symName: _ft_free_map, symObjAddr: 0xE4C, symBinAddr: 0x100009FF4, symSize: 0x60 }
-  - { offsetInCU: 0x3B1, offset: 0x3B1, size: 0x8, addend: 0x0, symName: _ft_find_player, symObjAddr: 0xEAC, symBinAddr: 0x10000A054, symSize: 0xF8 }
+  - { offsetInCU: 0x26, offset: 0x26, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0x0, symBinAddr: 0x1000086F0, symSize: 0x9C }
+  - { offsetInCU: 0x47, offset: 0x47, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0x0, symBinAddr: 0x1000086F0, symSize: 0x9C }
+  - { offsetInCU: 0x8B, offset: 0x8B, size: 0x8, addend: 0x0, symName: _ft_initialize_variables, symObjAddr: 0x9C, symBinAddr: 0x10000878C, symSize: 0x3C }
+  - { offsetInCU: 0xAF, offset: 0xAF, size: 0x8, addend: 0x0, symName: _ft_create_map, symObjAddr: 0xD8, symBinAddr: 0x1000087C8, symSize: 0x144 }
+  - { offsetInCU: 0x10B, offset: 0x10B, size: 0x8, addend: 0x0, symName: _ft_parse_map, symObjAddr: 0x21C, symBinAddr: 0x10000890C, symSize: 0x1BC }
+  - { offsetInCU: 0x14F, offset: 0x14F, size: 0x8, addend: 0x0, symName: _ft_initialize_mlx, symObjAddr: 0x3D8, symBinAddr: 0x100008AC8, symSize: 0xD4 }
+  - { offsetInCU: 0x177, offset: 0x177, size: 0x8, addend: 0x0, symName: _ft_create_hooks, symObjAddr: 0x4AC, symBinAddr: 0x100008B9C, symSize: 0x54 }
+  - { offsetInCU: 0x19B, offset: 0x19B, size: 0x8, addend: 0x0, symName: _ft_handle_keypress, symObjAddr: 0x500, symBinAddr: 0x100008BF0, symSize: 0x458 }
+  - { offsetInCU: 0x1D1, offset: 0x1D1, size: 0x8, addend: 0x0, symName: _ft_render_map, symObjAddr: 0x958, symBinAddr: 0x100009048, symSize: 0x30 }
+  - { offsetInCU: 0x1F9, offset: 0x1F9, size: 0x8, addend: 0x0, symName: _ft_error_free_all_exit, symObjAddr: 0x988, symBinAddr: 0x100009078, symSize: 0x70 }
+  - { offsetInCU: 0x23D, offset: 0x23D, size: 0x8, addend: 0x0, symName: _ft_render_background, symObjAddr: 0x9F8, symBinAddr: 0x1000090E8, symSize: 0x94 }
+  - { offsetInCU: 0x27D, offset: 0x27D, size: 0x8, addend: 0x0, symName: _ft_render_player, symObjAddr: 0xA8C, symBinAddr: 0x10000917C, symSize: 0x16C }
+  - { offsetInCU: 0x2A1, offset: 0x2A1, size: 0x8, addend: 0x0, symName: _ft_render_sprite, symObjAddr: 0xBF8, symBinAddr: 0x1000092E8, symSize: 0x1A0 }
+  - { offsetInCU: 0x2EF, offset: 0x2EF, size: 0x8, addend: 0x0, symName: _ft_render_animation, symObjAddr: 0xD98, symBinAddr: 0x100009488, symSize: 0x130 }
+  - { offsetInCU: 0x32F, offset: 0x32F, size: 0x8, addend: 0x0, symName: _ft_error_free_map_exit, symObjAddr: 0xEC8, symBinAddr: 0x1000095B8, symSize: 0x44 }
+  - { offsetInCU: 0x364, offset: 0x364, size: 0x8, addend: 0x0, symName: _ft_file_to_image, symObjAddr: 0xF0C, symBinAddr: 0x1000095FC, symSize: 0x178 }
+  - { offsetInCU: 0x38A, offset: 0x38A, size: 0x8, addend: 0x0, symName: _ft_error_exit, symObjAddr: 0x1084, symBinAddr: 0x100009774, symSize: 0x38 }
+  - { offsetInCU: 0x3B0, offset: 0x3B0, size: 0x8, addend: 0x0, symName: _ft_strappend, symObjAddr: 0x10BC, symBinAddr: 0x1000097AC, symSize: 0xFC }
+  - { offsetInCU: 0x416, offset: 0x416, size: 0x8, addend: 0x0, symName: _ft_free_map, symObjAddr: 0x11B8, symBinAddr: 0x1000098A8, symSize: 0x68 }
+  - { offsetInCU: 0x44B, offset: 0x44B, size: 0x8, addend: 0x0, symName: _ft_destroy_images, symObjAddr: 0x1220, symBinAddr: 0x100009910, symSize: 0xD0 }
+  - { offsetInCU: 0x471, offset: 0x471, size: 0x8, addend: 0x0, symName: _ft_player_to_image, symObjAddr: 0x12F0, symBinAddr: 0x1000099E0, symSize: 0x1A8 }
+  - { offsetInCU: 0x497, offset: 0x497, size: 0x8, addend: 0x0, symName: _ft_animation_to_image, symObjAddr: 0x1498, symBinAddr: 0x100009B88, symSize: 0xE4 }
+  - { offsetInCU: 0x4BD, offset: 0x4BD, size: 0x8, addend: 0x0, symName: _ft_find_player, symObjAddr: 0x157C, symBinAddr: 0x100009C6C, symSize: 0xF8 }
+  - { offsetInCU: 0x501, offset: 0x501, size: 0x8, addend: 0x0, symName: _ft_check_walls, symObjAddr: 0x1674, symBinAddr: 0x100009D64, symSize: 0x1B0 }
+  - { offsetInCU: 0x53A, offset: 0x53A, size: 0x8, addend: 0x0, symName: _ft_check_file_format, symObjAddr: 0x1824, symBinAddr: 0x100009F14, symSize: 0xD8 }
 ...

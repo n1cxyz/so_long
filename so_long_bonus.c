@@ -26,6 +26,7 @@ void	ft_free_map(char **map);
 void	ft_error_free_map_exit(t_data *data, char *message);
 void	ft_error_free_all_exit(t_data *data, char *message);
 void	ft_destroy_images(t_data *data);
+int		ft_close_game(t_data *data);
 //		rendering
 int		ft_render_map(t_data *data);
 void	ft_render_background(t_data *data);
@@ -37,6 +38,7 @@ int		ft_enemy(t_data *data);
 char	*ft_strappend(char *s1, char *s2);
 void	ft_print_moves(int n, t_data *data);
 int		ft_abs(int n);	// bonus
+void	ft_check_collision(t_data *data, int y, int x, int direction);
 //		mlx
 void	ft_file_to_image(t_data *data);
 void	ft_player_to_image(t_data *data);
@@ -65,11 +67,9 @@ int	main(int ac, char **av)
 	/* TO DO:
 	https://reactive.so/post/42-a-comprehensive-guide-to-so_long
 	-fix data->moves
-	-fix portal animation
 	-fix norm
 	-close window with x 
 	-sprite transparency
-	-enemy
 	-check memory management	
 	-file to image error handling
 	-exit game if game won*/
@@ -78,6 +78,9 @@ int	main(int ac, char **av)
 
 void	ft_create_hooks(t_data *data)
 {
+	mlx_hook(data->win_ptr, DestroyNotify, \
+	ButtonPressMask, ft_close_game, data);
+	mlx_hook(data->win_ptr, Expose, ExposureMask, ft_render_map, data);
 	ft_render_map(data);
 	mlx_hook(data->win_ptr, KeyPress, KeyPressMask, \
 	ft_handle_keypress, data);
@@ -104,8 +107,6 @@ int	ft_enemy(t_data *data) // bonus
 		if (data->map[data->enemy_y][data->enemy_x + to_move] != '1')
 			data->enemy_x += to_move;
 	}
-	if ((data->enemy_x == data->player_x) && (data->enemy_y == data->player_y))
-		ft_error_free_all_exit(data, "You lost!");
 	return(0);
 }
 
@@ -116,44 +117,37 @@ int	ft_abs(int n)
 	return (n);
 }
 
+void	ft_check_collision(t_data *data, int y, int x, int direction)
+{
+	data->player_direction = direction;
+	if ((data->map[y][x] != '1') && ((data->map[y][x] != 'E' || \
+	data->collectible_count == 0)))
+	{
+		if (direction == 1)
+			data->player_y -= 1;
+		if (direction == 2)
+			data->player_x -= 1;
+		if (direction == 3)
+			data->player_y += 1;
+		if (direction == 4)
+			data->player_x += 1;
+		data->moves++;
+		ft_print_moves(data->moves, data);
+	}
+}
+
 int	ft_handle_keypress(int keysym, t_data *data)
 {
 	if (keysym == XK_Escape || keysym == 53)
 		ft_error_free_all_exit(data, "ESC key pressed. Exiting program.\n");
 	if (keysym == XK_w || keysym == 13)
-	{
-		if ((data->map[data->player_y - 1][data->player_x] != '1') && \
-		((data->map[data->player_y - 1][data->player_x] != 'E' || \
-		data->collectible_count == 0)))
-			data->player_y -= 1;
-		data->player_direction = 1;
-	}
+		ft_check_collision(data, data->player_y - 1, data->player_x, 1);
     if (keysym == XK_a || keysym == 0)
-	{
-		if ((data->map[data->player_y][data->player_x - 1] != '1') && \
-		((data->map[data->player_y][data->player_x - 1] != 'E' || \
-		data->collectible_count == 0)))
-			data->player_x -= 1;
-			data->player_direction = 2;
-	}
+		ft_check_collision(data, data->player_y, data->player_x - 1, 2);
     if (keysym == XK_s || keysym == 1)
-	{
-		if ((data->map[data->player_y + 1][data->player_x] != '1') && \
-		((data->map[data->player_y + 1][data->player_x] != 'E' || \
-		data->collectible_count == 0)))
-			data->player_y += 1;
-			data->player_direction = 3;
-	}
+		ft_check_collision(data, data->player_y + 1, data->player_x, 3);
     if (keysym == XK_d || keysym == 2)
-	{
-		if ((data->map[data->player_y][data->player_x + 1] != '1') && \
-		((data->map[data->player_y][data->player_x + 1] != 'E' || \
-		data->collectible_count == 0)))
-			data->player_x += 1;
-		data->player_direction = 4;
-	}
-    data->moves++;
-    ft_print_moves(data->moves, data);
+		ft_check_collision(data, data->player_y, data->player_x + 1, 4);
 	if (data->map[data->player_y][data->player_x] == 'C')
 	{
 		data->map[data->player_y][data->player_x] = '0';
@@ -181,9 +175,13 @@ void	ft_print_moves(int n, t_data *data)
 
 int	ft_render_map(t_data *data)
 {	
+	char *to_print;
+
+	to_print = ft_itoa(data->moves);
 	ft_render_background(data);
 	ft_render_player(data);
-	mlx_string_put(data->mlx_ptr, data->win_ptr, 0, 10, 0xFFFFFF, ft_itoa(data->moves)); //boonus
+	mlx_string_put(data->mlx_ptr, data->win_ptr, 0, 10, 0xFFFFFF, to_print);
+	free (to_print); //bonus
 	mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
 		data->enemy_ptr, data->enemy_x * SPRITE_SIZE, data->enemy_y * SPRITE_SIZE); // bonus
 	return (0);
@@ -220,13 +218,13 @@ void	ft_render_sprite(t_data *data, int x, int y)
 		data->closed_exit_ptr, x * SPRITE_SIZE, y * SPRITE_SIZE);
 	else if (type == 'E' && data->collectible_count == 0)
 	{
-		if (data->animation_count < 50)
+		if (data->animation_count < 2500)
 			mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
 		data->open_exit_ptr, x * SPRITE_SIZE, y * SPRITE_SIZE);
-		else if (data->animation_count < 100)
+		else if (data->animation_count < 5000)
 			mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
 		data->open_2_exit_ptr, x * SPRITE_SIZE, y * SPRITE_SIZE); // bonus
-		else if (data->animation_count < 150)
+		else if (data->animation_count < 7500)
 			mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
 		data->open_3_exit_ptr, x * SPRITE_SIZE, y * SPRITE_SIZE); 
 	}
@@ -244,9 +242,11 @@ int	ft_render_animation(t_data *data, int x, int y) //bonus
 		ft_render_map(data);
 	if (data->animation_count == 20)
 		ft_enemy(data);
-	if (data->animation_count == 150)
+	if (data->animation_count == 10000)
 		data->animation_count = 0;
 	data->animation_count++;
+	if ((data->enemy_x == data->player_x) && (data->enemy_y == data->player_y))
+		ft_error_free_all_exit(data, "You lost!");
 	return (0);
 }
 
@@ -361,9 +361,22 @@ void	ft_error_free_all_exit(t_data *data, char *message)
 	ft_free_map(data->map);
 	ft_free_map(data->map_copy);	
 	mlx_destroy_window(data->mlx_ptr, data->win_ptr);
-	//mlx_destroy_display(data->mlx_ptr);
+	mlx_destroy_display(data->mlx_ptr);
 	free(data->mlx_ptr);
 	write(2, message, ft_strlen(message));
+	exit (EXIT_FAILURE);
+}
+
+int	ft_close_game(t_data *data)
+{
+	ft_destroy_images(data);
+	ft_free_map(data->map);
+	ft_free_map(data->map_copy);	
+	mlx_destroy_window(data->mlx_ptr, data->win_ptr);
+	mlx_destroy_display(data->mlx_ptr);
+	free(data->mlx_ptr);
+	write(2, "Error\n", 6);
+	write(2, "closed game\n", 12);
 	exit (EXIT_FAILURE);
 }
 
@@ -462,7 +475,9 @@ void	ft_destroy_images(t_data *data)
     if (data->open_2_exit_ptr)
 		mlx_destroy_image(data->mlx_ptr, data->open_2_exit_ptr);
     if (data->open_3_exit_ptr)
-		mlx_destroy_image(data->mlx_ptr, data->open_3_exit_ptr); //bonus
+		mlx_destroy_image(data->mlx_ptr, data->open_3_exit_ptr);
+	if (data->enemy_ptr)
+		mlx_destroy_image(data->mlx_ptr, data->enemy_ptr); //bonus
 }
 
 void	ft_parse_map(t_data *data, char *map_file)
@@ -487,8 +502,6 @@ void	ft_parse_map(t_data *data, char *map_file)
 		ft_error_free_map_exit(data, "Error\nwrong player count\n");
 	if (!(ft_check_file_format(map_file)))
 		ft_error_free_map_exit(data, "Error\nWrong file format\n");
-	if (data->win_height == data->win_width)
-		ft_error_free_map_exit(data, "Error\nMap must be rectangular\n");
 	ft_flood_fill(data, data->player_y, data->player_x);
 	if ((!(data->exit_count == 1)) || \
 	data->collectible_count != data->to_collect)

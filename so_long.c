@@ -6,7 +6,7 @@
 /*   By: dominicasal <dominicasal@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/01 12:52:13 by dasal             #+#    #+#             */
-/*   Updated: 2024/07/06 14:38:58 by dominicasal      ###   ########.fr       */
+/*   Updated: 2024/07/07 00:42:49 by dominicasal      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,9 @@ void	ft_render_sprite(t_data *data, int x, int y);
 void	ft_render_player(t_data *data);
 //		utils
 char	*ft_strappend(char *s1, char *s2);
-void	ft_print_moves(int n, t_data *data);
+void	ft_print_moves(int n);
 void	ft_check_collision(t_data *data, int y, int x, int direction);
+int		ft_check_empty_line(char *str);
 //		mlx
 void	ft_file_to_image(t_data *data);
 void	ft_player_to_image(t_data *data);
@@ -61,6 +62,8 @@ int	main(int ac, char **av)
 		write(2, "Error\nmap file missing", 22);
 	/* TO DO:
 	https://reactive.so/post/42-a-comprehensive-guide-to-so_long
+	-bonus map parsing
+	-destroy display
 	-fix norm
 	-fix file structure
 	-fix Makefile
@@ -81,8 +84,7 @@ void	ft_create_hooks(t_data *data)
 void	ft_check_collision(t_data *data, int y, int x, int direction)
 {
 	data->player_direction = direction;
-	if ((data->map[y][x] != '1') && ((data->map[y][x] != 'E' || \
-	data->collectible_count == 0)))
+	if (data->map[y][x] != '1')
 	{
 		if (direction == 1)
 			data->player_y -= 1;
@@ -93,7 +95,7 @@ void	ft_check_collision(t_data *data, int y, int x, int direction)
 		if (direction == 4)
 			data->player_x += 1;
 		data->moves++;
-		ft_print_moves(data->moves, data);
+		ft_print_moves(data->moves);
 	}
 }
 
@@ -114,13 +116,13 @@ int	ft_handle_keypress(int keysym, t_data *data)
 		data->map[data->player_y][data->player_x] = '0';
 		data->collectible_count--;
 	}
-	if (data->map[data->player_y][data->player_x] == 'E')
+	if (data->map[data->player_y][data->player_x] == 'E' && data->collectible_count == 0)
 		ft_error_free_all_exit(data, "You won!");
 	ft_render_map(data);	
 	return (0);
 }
 
-void	ft_print_moves(int n, t_data *data)
+void	ft_print_moves(int n)
 {
 	char	*to_print;
 
@@ -221,7 +223,6 @@ void	ft_create_map(t_data *data, char *file)
 {
 	int		fd;
 	char	*buffer;
-	char	*result;
 
 	fd = open(file, O_RDONLY);
 	if (fd == -1)
@@ -237,6 +238,7 @@ void	ft_create_map(t_data *data, char *file)
 	if (buffer == NULL && data->map_file == NULL)
 		ft_error_exit("Error\nEmpty file\n"); 
 	close(fd);
+	ft_check_empty_line(data->map_file);
 	data->map = ft_split(data->map_file, '\n');
 	data->map_copy = ft_split(data->map_file, '\n');
 	if (!data->map || !data->map_copy)
@@ -246,6 +248,7 @@ void	ft_create_map(t_data *data, char *file)
 		}
 	free (data->map_file);
 }
+
 void	ft_initialize_variables(t_data *data)
 {
     data->moves = 0;
@@ -288,7 +291,7 @@ void	ft_error_free_all_exit(t_data *data, char *message)
 	ft_free_map(data->map);
 	ft_free_map(data->map_copy);	
 	mlx_destroy_window(data->mlx_ptr, data->win_ptr);
-	mlx_destroy_display(data->mlx_ptr);
+	//mlx_destroy_display(data->mlx_ptr);
 	free(data->mlx_ptr);
 	write(2, message, ft_strlen(message));
 	exit (EXIT_FAILURE);
@@ -300,7 +303,7 @@ int	ft_close_game(t_data *data)
 	ft_free_map(data->map);
 	ft_free_map(data->map_copy);	
 	mlx_destroy_window(data->mlx_ptr, data->win_ptr);
-	mlx_destroy_display(data->mlx_ptr);
+	//mlx_destroy_display(data->mlx_ptr);
 	free(data->mlx_ptr);
 	write(2, "Error\n", 6);
 	write(2, "closed game\n", 12);
@@ -310,7 +313,6 @@ int	ft_close_game(t_data *data)
 void	ft_free_map(char **map)
 {
 	int	i;
-	int	j;
 
 	i = 0;
 	while (map[i] && map)
@@ -406,10 +408,11 @@ void	ft_parse_map(t_data *data, char *map_file)
 	if (!(ft_check_walls(data)))
 		ft_error_free_map_exit(data, "Error\nMap not enclosed in walls\n");
 	ft_find_player(data);
-	if (!(data->player_count == 1))
-		ft_error_free_map_exit(data, "Error\nwrong player count\n");
+	if ((data->player_count != 1) || (data->exit_count != 1))
+		ft_error_free_map_exit(data, "Error\nwrong player or exit count\n");
 	if (!(ft_check_file_format(map_file)))
 		ft_error_free_map_exit(data, "Error\nWrong file format\n");
+	data->exit_count = 0;
 	ft_flood_fill(data, data->player_y, data->player_x);
 	if ((!(data->exit_count == 1)) || \
 	data->collectible_count != data->to_collect)
@@ -495,6 +498,8 @@ void	ft_find_player(t_data *data)
 			}
 			if (data->map[y][x] == 'C')
 				data->collectible_count++;
+			if (data->map[y][x] == 'E')
+				data->exit_count++;
 			if (data->map[y][x] != '1' && data->map[y][x] != '0' && \
 			data->map[y][x] != 'C' && data->map[y][x] != 'E' && \
 			data->map[y][x] != 'P')
@@ -524,6 +529,28 @@ char	*ft_strappend(char *s1, char *s2)
 	ft_memcpy(str, s1, s1len);
 	ft_memcpy(str + s1len, s2, s2len + 1);
 	str[s1len + s2len] = '\0';
-	free(s1);
+	free (s1);
 	return (str);
+}
+
+int	ft_check_empty_line(char *str)
+{
+	int	i;
+
+	i = 0;
+	if (str[i] == '\n' || str[ft_strlen(str) - 1] == '\n')
+	{
+		free (str);
+		ft_error_exit("Error\nempty line\n");
+	}
+	while (str[i])
+	{
+		if (str[i] == '\n' && str[i + 1] == '\n')
+		{
+			free (str);
+			ft_error_exit("Error\nempty line\n");
+		}
+		i++;
+	}
+	return (0);
 }

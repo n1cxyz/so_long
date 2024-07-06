@@ -30,17 +30,6 @@
 # define DOWN 1
 # define RIGHT 2
 
-typedef struct s_vars
-{
-	void	*mlx_ptr;
-	void	*win_ptr;
-	void	*img_ptr;
-	int		img_width;
-	int		img_height;
-	int		x;
-	int		y;
-}	t_vars;
-
 typedef struct s_data
 {
 	void	*mlx_ptr;
@@ -58,7 +47,6 @@ typedef struct s_data
 	void	*open_3_exit_ptr; //bonus
 	void	*closed_exit_ptr;
 	void	*enemy_ptr; //bonus
-	char	**mlx_array;
 	char	**map;
 	char	**map_copy;
 	char	*map_file;
@@ -73,14 +61,10 @@ typedef struct s_data
 	int		img_width;
 	int		img_height;
 	int		moves;
-	int		x;
-	int		y;
-	const char *filename;
 	int		to_collect;
 	int		collectible_count;
 	int		animation_count; //bonus
 	int		exit_count;
 	int		player_count;
-	int		array_count;
 	int		enemy_count; // bonus
 }	t_data;

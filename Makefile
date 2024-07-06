@@ -8,6 +8,7 @@ OBJ = $(SRC:.c=.o)
 NAME = so_long
 
 gcc -o so_long so_long.c -L./mlx_linux -lmlx -lX11 -lXext -I./libft -L./libft -lft
+gcc -g -o so_long_bonus -I ./lib/libft -L ./lib/libft -lft -I /usr/X11/include -g -L /usr/X11/lib -l mlx -framework OpenGL -framework AppKit so_long_bonus.c
 
 all: $(NAME)
 

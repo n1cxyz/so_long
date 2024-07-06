@@ -6,3 +6,5 @@ README.md
 .DS_Store
 *.o
 so_long
+so_long.dSYM
+so_long_bonus.dSYM

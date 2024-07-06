@@ -13,9 +13,9 @@
 # define MLX_ERROR 1
 # define SPRITE_SIZE 32
 
-# define FLOOR "./textures/grass.xpm"
+# define FLOOR "./textures/floortile.xpm"
 # define WALL "./textures/wall.xpm"
-# define COLLECTIBLE "./textures/trans_char.xpm"
+# define COLLECTIBLE "./textures/globe.xpm"
 # define EXIT_OPEN "./textures/port1.xpm"
 # define EXIT_CLOSED "./textures/closed.xpm"
 # define PLAYER_BACK "./textures/guy_back.xpm"
@@ -24,6 +24,7 @@
 # define PLAYER_RIGHT "./textures/guy_right.xpm"
 # define EXIT_OPEN_2 "./textures/port2.xpm"
 # define EXIT_OPEN_3 "./textures/port3.xpm"
+# define ENEMY "./textures/trans_char.xpm"
 # define UP 13
 # define LEFT 2
 # define DOWN 1
@@ -56,6 +57,7 @@ typedef struct s_data
 	void	*open_2_exit_ptr; //bonus
 	void	*open_3_exit_ptr; //bonus
 	void	*closed_exit_ptr;
+	void	*enemy_ptr; //bonus
 	char	**mlx_array;
 	char	**map;
 	char	**map_copy;
@@ -63,6 +65,8 @@ typedef struct s_data
 	char	*buffer;
 	int		player_x;
 	int		player_y;
+	int		enemy_x; //bonus
+	int		enemy_y; //bonus
 	int		player_direction;
 	int		win_width;
 	int		win_height;
@@ -78,4 +82,5 @@ typedef struct s_data
 	int		exit_count;
 	int		player_count;
 	int		array_count;
+	int		enemy_count; // bonus
 }	t_data;

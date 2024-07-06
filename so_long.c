@@ -6,7 +6,7 @@
 /*   By: dominicasal <dominicasal@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/01 12:52:13 by dasal             #+#    #+#             */
-/*   Updated: 2024/07/05 06:31:34 by dominicasal      ###   ########.fr       */
+/*   Updated: 2024/07/06 02:18:02 by dominicasal      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ int		ft_check_file_format(char *str);
 int		ft_check_walls(t_data *data);
 int		ft_flood_fill(t_data *data, int y, int x);
 //		error
-void	ft_error_free_exit(char **map, char *message);
 void	ft_error_exit(char *message);
 void	ft_free_map(char **map);
 void	ft_error_free_map_exit(t_data *data, char *message);
@@ -32,10 +31,12 @@ int		ft_render_map(t_data *data);
 void	ft_render_background(t_data *data);
 void	ft_render_sprite(t_data *data, int x, int y);
 void	ft_render_player(t_data *data);
-void	ft_render_animation(t_data *data, int x, int y); //bonus
+int		ft_render_animation(t_data *data, int x, int y); //bonus
+int		ft_enemy(t_data *data);
 //		utils
 char	*ft_strappend(char *s1, char *s2);
 void	ft_print_moves(int n, t_data *data);
+int		ft_abs(int n);	// bonus
 //		mlx
 void	ft_file_to_image(t_data *data);
 void	ft_player_to_image(t_data *data);
@@ -63,21 +64,55 @@ int	main(int ac, char **av)
 		write(2, "Error\nmap file missing", 22);
 	/* TO DO:
 	https://reactive.so/post/42-a-comprehensive-guide-to-so_long
-	-close window with x
-	-movement count on screen 
+	-fix portal animation
+	-close window with x 
 	-sprite transparency
 	-enemy
 	-check memory management	
 	-file to image error handling
-	-exit game if game won
+	-exit game if game won*/
 	return (0);
 }
 
 void	ft_create_hooks(t_data *data)
 {
+	ft_render_map(data);
 	mlx_hook(data->win_ptr, KeyPress, KeyPressMask, \
 	ft_handle_keypress, data);
-	mlx_loop_hook(data->mlx_ptr, ft_render_map, data);
+	//mlx_loop_hook(data->mlx_ptr, ft_render_animation, data); // bonus
+}
+
+int	ft_enemy(t_data *data) // bonus
+{
+	int	delta_y;
+	int	delta_x;
+	int	to_move;
+
+	delta_x = data->player_x - data->enemy_x;
+	delta_y = data->player_y - data->enemy_y;
+	if (ft_abs(delta_y) > ft_abs(delta_x))
+	{
+		to_move = delta_y / ft_abs(delta_y);
+		if (data->map[data->enemy_y + to_move][data->enemy_x] != '1')
+			data->enemy_y += to_move;
+	}
+	else
+	{
+		to_move = delta_x / ft_abs(delta_x);
+		if (data->map[data->enemy_y][data->enemy_x + to_move] != '1')
+			data->enemy_x += to_move;
+	}
+	ft_render_map(data);
+	if ((data->enemy_x == data->player_x) && (data->enemy_y == data->player_y))
+		ft_error_free_all_exit(data, "You lost!");
+	return(0);
+}
+
+int	ft_abs(int n)
+{
+	if (n < 0)
+		return (n * -1);
+	return (n);
 }
 
 int	ft_handle_keypress(int keysym, t_data *data)
@@ -124,9 +159,11 @@ int	ft_handle_keypress(int keysym, t_data *data)
 		data->collectible_count--;
 	}
 	if (data->map[data->player_y][data->player_x] == 'E')
-		ft_error_free_all_exit(data, "You won!");		
+		ft_error_free_all_exit(data, "You won!");
+	ft_render_map(data);	
 	return (0);
 }
+
 void	ft_print_moves(int n, t_data *data)
 {
 	char	*to_print;
@@ -138,13 +175,16 @@ void	ft_print_moves(int n, t_data *data)
 		write(1, to_print, ft_strlen(to_print));
 		write(1, "\n", 1);
 		free(to_print);
-	}
-	//mlx_string_put(data->mlx_ptr, data->win_ptr, 0, 10, 0xFFFFFF, to_print); // bonuse
+	} 
 }
+
 int	ft_render_map(t_data *data)
 {	
 	ft_render_background(data);
 	ft_render_player(data);
+	//mlx_string_put(data->mlx_ptr, data->win_ptr, 0, 10, 0xFFFFFF, ft_itoa(data->moves)); //boonus
+	/* mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
+		data->enemy_ptr, data->enemy_x * SPRITE_SIZE, data->enemy_y * SPRITE_SIZE); // bonus */
 	return (0);
 }
 
@@ -186,23 +226,32 @@ void	ft_render_sprite(t_data *data, int x, int y)
 	data->floor_ptr, x * SPRITE_SIZE, y * SPRITE_SIZE);
 	if (type == 'C')
 		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
-	data->collectible_ptr, x * SPRITE_SIZE, y * SPRITE_SIZE);
+	data->collectible_ptr, x * SPRITE_SIZE, y * SPRITE_SIZE - 6);
 }
 
-void	ft_render_animation(t_data *data, int x, int y) //bonus
+int	ft_render_animation(t_data *data, int x, int y) //bonus
 {
-	if (data->animation_count == 1)
+	if (data->animation_count < 20)
 		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
 	data->open_exit_ptr, x * SPRITE_SIZE, y * SPRITE_SIZE);
-	if (data->animation_count == 400)
+	else if (data->animation_count < 40)
 		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
 	data->open_2_exit_ptr, x * SPRITE_SIZE, y * SPRITE_SIZE);
-	if (data->animation_count == 800)
+	else //(data->animation_count == 80)
 		mlx_put_image_to_window(data->mlx_ptr, data->win_ptr, \
 	data->open_3_exit_ptr, x * SPRITE_SIZE, y * SPRITE_SIZE); 
 	data->animation_count++;
-	if (data->animation_count == 1200)
+	if (data->animation_count % 20 == 0)
+	{
+		ft_enemy(data);
+	}
+	if (data->animation_count == 80)
+	{
 		data->animation_count = 0;
+	}
+	if (data->animation_count % 20 == 0)
+		ft_render_map(data);
+	return (0);
 }
 
 void	ft_render_player(t_data *data)
@@ -277,7 +326,7 @@ void	ft_initialize_variables(t_data *data)
 	data->collectible_count = 0;
 	data->player_direction = 1;
 	data->map_file = NULL;
-	data->animation_count = 0; //bonus
+	//data->animation_count = 0; //bonus
 	data->player_count = 0;
 	data->exit_count = 0;	
 	data->to_collect = 0;
@@ -314,7 +363,7 @@ void	ft_error_free_all_exit(t_data *data, char *message)
 	ft_free_map(data->map);
 	ft_free_map(data->map_copy);	
 	mlx_destroy_window(data->mlx_ptr, data->win_ptr);
-	mlx_destroy_display(data->mlx_ptr);
+	//mlx_destroy_display(data->mlx_ptr);
 	free(data->mlx_ptr);
 	write(2, message, ft_strlen(message));
 	exit (EXIT_FAILURE);
@@ -379,6 +428,10 @@ void	ft_player_to_image(t_data *data)
 	PLAYER_RIGHT, &data->img_width, &data->img_height);
 	if (data->player_right_ptr == NULL)
 		ft_error_free_all_exit(data, "failed to load immage");
+	/* data->enemy_ptr = mlx_xpm_file_to_image(data->mlx_ptr, \
+	ENEMY, &data->img_width, &data->img_height);
+	if (data->enemy_ptr == NULL)
+		ft_error_free_all_exit(data, "failed to load immage"); */ // bonus
 }
 void	ft_animation_to_image(t_data *data) //bonus
 {
@@ -449,6 +502,12 @@ int	ft_flood_fill(t_data *data, int y, int x)
 		data->exit_count++;
 	if (data->map_copy[y][x] == 'C')
 		data->to_collect++;
+	/* if (data->map_copy[y][x] == 'M')
+	{ // bonus
+		data->enemy_count++;
+		data->enemy_x = x;
+		data->enemy_y = y;
+	} */
 	data->map_copy[y][x]= 'v';
 	ft_flood_fill(data, y + 1, x);
 	ft_flood_fill(data, y - 1, x);
@@ -522,7 +581,7 @@ void	ft_find_player(t_data *data)
 				data->collectible_count++;
 			if (data->map[y][x] != '1' && data->map[y][x] != '0' && \
 			data->map[y][x] != 'C' && data->map[y][x] != 'E' && \
-			data->map[y][x] != 'P') //&& data->map[y][x] != 'Z'
+			data->map[y][x] != 'P' && data->map[y][x] != 'M') // bonus
 				ft_error_free_map_exit(data, "Error\nInvalid char\n");
 			x++;
 		}

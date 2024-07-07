@@ -65,7 +65,7 @@ int		ft_tolower(int c);
 int		ft_toupper(int c);
 //		PRINTF
 int		ft_putchar(char c);
-int     ft_putstr(char const *str);
+int		ft_putstr(char const *str);
 int		ft_putnbr(long n);
 int		ft_putnbr_hexl(long n);
 int		ft_putnbr_hexu(long n);
@@ -85,6 +85,5 @@ char	*ft_strxjoin(char *s1, char *s2);
 char	*ft_get_stash(char *stash, int fd);
 char	*str_snip(char *str);
 char	*get_next_line(int fd);
-
 
 #endif
